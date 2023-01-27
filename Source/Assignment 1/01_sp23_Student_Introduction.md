@@ -1,0 +1,45 @@
+01_sp23_Student_Introduction
+================
+Areej Mulla
+1/24/2023
+
+## A Little About Me
+
+I am Areej Mulla. I am a Master of Science in Operations and Technology
+Management (MSOTM) student with a passion for cybersecurity. I underwent
+on-the-job training at one of IBM’s world regional centers in Cairo,
+developing various analytical, programming and leadership skills. My
+career includes working at one of the top 5 largest energy companies in
+the Middle East and North Africa. During that time, I obtained a
+professional certificate in Essentials of Cybersecurity from the
+University of Washington. Currently, I am a member of Women in Cyber
+Security, Cyber Oregon and PDX Women in Tech.
+
+![Picture](../../Images/Areej_Mulla.jpg)
+
+#### Course Expectations
+
+-   Gain a solid understanding of R programming language through
+    motivation and guidance.
+-   Understand the business implications of this course in the real
+    world.
+-   Develop the necessary skills that would contribute to my success in
+    my future career in the field of OTM.
+
+#### MSOTM Program Progress
+
+**The table below illustrates the courses I have taken so far.**
+
+| Course | Course Title       | Acquired Skills                             |
+|--------|--------------------|---------------------------------------------|
+| BUS519 | Business Analytics | Analytical <br> Tableau                     |
+| BUS543 | Decision Modeling  | R <br> Linear programming                   |
+| BUS586 | IT Security        | Network Security <br> Compliance            |
+| BUS545 | Project Management | Problem solving <br> MS Excel’s Solver <br> |
+| BUS585 | IT Audit           | Risk management <br> Critical thinking      |
+
+#### Contact Information
+
+Email address: <span
+style="text-decoration:underline"><mulla24@up.edu></span>  
+Website: [*LinkedIn*](https://www.linkedin.com/in/areejmulla/)
