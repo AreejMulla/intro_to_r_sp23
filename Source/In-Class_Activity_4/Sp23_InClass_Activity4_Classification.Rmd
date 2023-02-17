@@ -136,7 +136,7 @@ test_confusionMatrix <- as.data.frame(test_confusionMatrix)
 test_accuracy <- sum(test_confusionMatrix[
   test_confusionMatrix$Var1 == test_confusionMatrix$Var2, "Freq"]) /
   sum(test_confusionMatrix$Freq)
-print(test_accuracy)
+print(test_accuracy)   
 ```
 
 ```{r making_interpretations}
