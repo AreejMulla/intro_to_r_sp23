@@ -1,0 +1,145 @@
+---
+title: "Logistic Regression"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Logistic Regression 
+
+In statistics, the logistic model (or logit model) is used to model the probability of a certain class or event existing such as pass/fail, win/lose, alive/dead or healthy/sick. This can be extended to model several classes of events such as determining whether an image contains a cat, dog, lion, etc. Each object being detected in the image would be assigned a probability between 0 and 1, with a sum of one.
+
+The equation for Logistic Regression can be written as: 
+
+$$
+output = log{_e}(\frac{p}{1-p}) = \beta_0 + \beta_1 x + \beta_2 x^2 + ... + \beta_n x^n \
+$$
+The "output" is also called logit. 
+Another name for "output" is the log odds ratio. 
+p is the probability of an event occuring or not.
+So the odds ratio is: (Probability of an event occurring divided by probability of an event not occurring)
+
+$$
+\frac{p}{1-p}
+$$
+Suppose: 
+$$
+\begin{aligned}
+        Y = \beta_0 + \beta_1 x + \beta_2 x^2 + ... + \beta_n x^n  \\   
+\end{aligned}
+$$
+
+Then
+
+$$
+log{_e}(\frac{p}{1-p}) = Y \\
+$$
+Taking log on both the sides 
+
+
+$$
+\\
+\frac{p}{1-p} = e^Y \\
+$$
+
+Solving for p, we will get
+
+$$
+p = \frac{e^Y}{1+e^Y} \\
+$$
+As Y increases positively p approaches  1 and as Y increases negatively, then p approaches to zero
+
+
+```{r read_student_admissions}
+library(readr)
+# Use read_csv() to read the file 
+admissions <- read_csv(paste0(getwd(), "/UCLA_Student_Admissions.csv"))
+
+```
+```{r convert_to_factor}
+admissions$rank <- factor(admissions$rank)
+```
+
+```{r get_a_glimpse_of_data}
+library(tibble) 
+#gives the first several values of each variable
+glimpse(admissions)
+```
+
+```{r train_and_test_split}
+# Include your code to select train and test samples 
+# use the seed 100 for selecting the random samples for reproducibility 
+# Use 80% of your data to create a training sample 
+# Use 20% of your data to create a test sample 
+
+
+#create a sample
+admissions$sample_col <- sample(c(1,2), nrow(admissions), replace = T, prob = c(0.8, 0.2))
+
+#training sample
+train <- admissions[admissions$sample_col == 1, ]
+
+#test sample
+test <- admissions[admissions$sample_col == 2, ]
+```
+
+```{r glm_model}
+# Include your code to run the Generalized Linear Regression (GLM) model of "binomial" family
+# Print the summary of the model 
+# The model returns coefficients that impact the outcome variable admit 
+# Interpret the results in terms of log odds 
+model <- glm(admit ~ gre+gpa+rank,
+             family = "binomial",
+             data = train)
+summary(model)
+```
+
+```{r}
+# Make predictions for the train sample
+# Create a confusion matrix using the train sample and calculate the accuracy of the model using training sample  
+predicted_admit <- predict(model,
+                           train[-5],
+                           type = "response") #to ignore the 5th column
+
+```
+
+```{r predicted_outcome}
+predicted_admit <- ifelse(predicted_admit > 0.5, 1, 0)
+```
+
+```{r add_prediction_to_train}
+#to show false positive and false negatives...etc.
+train$prediction <- predicted_admit
+confusionMatrix <- table(train$admit, train$prediction)
+confusionMatrix <- as.data.frame(confusionMatrix)
+accuracy <- sum(confusionMatrix[
+  confusionMatrix$Var1 == confusionMatrix$Var2, "Freq"]) /
+  sum(confusionMatrix$Freq)
+print(accuracy)
+```
+
+```{r}
+# Make predictions for the test sample
+# Create a confusion matrix using the train sample and calculate the accuracy of the model using training sample  
+
+test_predicted_admit <- predict(model,
+                           test[-5], #to ignore the 5th column
+                           type = "response")
+
+test_predicted_admit <- ifelse(test_predicted_admit > 0.5, 1, 0)
+
+test$prediction <- test_predicted_admit
+test_confusionMatrix <- table(test$admit, test$prediction)
+test_confusionMatrix <- as.data.frame(test_confusionMatrix)
+test_accuracy <- sum(test_confusionMatrix[
+  test_confusionMatrix$Var1 == test_confusionMatrix$Var2, "Freq"]) /
+  sum(test_confusionMatrix$Freq)
+print(test_accuracy)
+```
+
+```{r making_interpretations}
+exp(model$coefficients)
+```
+
