@@ -1,0 +1,99 @@
+---
+title: "Sp23_Midterm_Exam"
+author: "Areej Mulla"
+date: "3/2/2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1: Reading the File & Printing the Summary
+```{r housing_prices}
+library(readr)
+housing_prices <- read_csv(paste0(getwd(), "/melbourne_housing_prices.csv"))
+summary(housing_prices)
+```
+
+## Question 2: Computing the Sum of Missing Records for Each Column
+
+The summary demonstrates that the following columns having missing values:
+
+- "Car" = 62 missing values
+
+- "BuildingArea" = 6450 missing values
+
+- "YearBuilt" = 5375 missing values
+
+- "CouncilArea" = 1369 missing values
+
+Below is the analysis on whether it is acceptable to eliminate the missing values
+and the reasoning:
+
+- "Car": 62 records is not a significant number compared to the total number of
+records of 13580, and thus the corresponding entries can be eliminated.
+
+- "CouncilArea" does not include a significant number of missing values, and
+thus the corresponding entries can be eliminated. 
+
+- "BuildingArea" and "YearBuilt" have a significant number of missing values
+and are crucial indicators of a house price, and thus the corresponding entries
+should not be eliminated, but rather should be imputed. 
+
+## Question 3: Creating a Histogram to Illustrate Price Distribution
+```{r layer1}
+library(ggplot2)
+layer1 <- ggplot( data = housing_prices)
+```
+
+### Plot #1:
+```{r histogram}
+layer1 + 
+  geom_histogram(aes(x=Price)) + 
+  scale_x_continuous(labels = scales::dollar_format())
+```
+
+### Plot #2 (With log10 Scale):
+```{r histogram_log10_scale}
+layer1 + 
+  geom_histogram(aes(x=Price)) + 
+    scale_x_log10(labels = scales::dollar_format())
+```
+
+## Question 4: Creating a Facet Histogram
+
+### Plot #1:
+```{r facet_histogram_plot}
+ggplot(housing_prices[!is.na(housing_prices$Price),]) +
+  geom_histogram(aes(x = Price)) + 
+  scale_x_log10(labels = scales::dollar_format(), name = "Price") +
+  facet_wrap(~Rooms) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  ylab("Number of Houses")
+
+```
+
+### Plot #2 (With free_y):
+```{r facet_histogram_plot_free_y}
+ggplot(housing_prices[!is.na(housing_prices$Price),]) +
+  geom_histogram(aes(x = Price)) + 
+  scale_x_log10(labels = scales::dollar_format(), name = "Price")+
+  facet_wrap(~Rooms, scale = "free_y") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  ylab("Number of Houses")
+```
+
+## Question 5: Creating a Correlation Matrix
+```{r correlation_matrix}
+options(digits = 2)
+numeric_column_names <- unlist(sapply(housing_prices, is.numeric))
+cor_matrix <- cor(housing_prices[,numeric_column_names], use="pairwise.complete.obs")
+knitr::kable(cor_matrix)
+```
+
+**Honors Pledge:**
+
+**As a student of the Dr. Robert B. Pamplin Jr. School of Business I have read and strive to uphold the University’s Code of Academic Integrity and promote ethical behavior. In doing so, I pledge on my honor that I have not given, received, or used any unauthorized materials or assistance on this examination or assignment.  I further pledge that I have not engaged in cheating, forgery, or plagiarism and I have cited all appropriate sources.**
+
+Student Signature: Areej Mulla

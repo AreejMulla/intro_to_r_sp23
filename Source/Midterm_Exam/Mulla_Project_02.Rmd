@@ -1,0 +1,150 @@
+---
+title: "Sp23_Midterm_Exam"
+author: "Areej Mulla"
+date: "3/2/2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reading the File
+```{r bank_full}
+library(readr)
+bank_full <- read_delim(paste0(getwd(), "/bank_full.csv"))
+```
+
+## Cleaning the Data
+
+The data set has no NA values, but rather has "unknown" values.
+
+### Addressing the Dependent Variable (y):
+```{r dependent_var}
+# convert the dependent variable to 0s & 1s
+bank_full$y <- ifelse(bank_full$y == "yes", 1, 0)
+```
+
+### Addressing the Independent Variables:
+```{r independent_var}
+
+# treat "education" as a factor from 1 to 4 (has "unknown" values)
+bank_full$education <- factor(bank_full$education,
+                            level = c("unknown", "primary", "secondary", "tertiary"),
+                            exclude = NULL)
+
+bank_full$housing <- ifelse(bank_full$housing == "yes", 1, 0)
+bank_full$loan <- ifelse(bank_full$loan == "yes", 1, 0)
+bank_full$default <- ifelse(bank_full$default == "yes", 1, 0)
+
+# treat "contact" as a factor from 1 to 3 (has "unknown" values)
+bank_full$contact <- factor(bank_full$contact,
+                            level = c("unknown", "cellular", "telephone"),
+                            exclude = NULL)
+
+# treat marital as a factor from 1 to 3 (doesn't have "unknown" values)
+bank_full$marital <- factor(bank_full$marital,
+                            level = c("single", "divorced", "married"),
+                            exclude = NULL)
+
+# treat job as a factor from 1 to 12 (has "unknown" values)
+bank_full$job <- factor(bank_full$job,
+                            level = c("unknown", "unemployed", "student",
+                                      "housemaid", "services", "blue-collar",
+                                      "retired", "admin.", "self-employed",
+                                      "technician", "management", "entrepreneur"),
+                            exclude = NULL)
+
+# treat poutcome as a factor from 1 to 4 (has "unknown" values)
+bank_full$poutcome <- factor(bank_full$poutcome,
+                            level = c("unknown", "failure", "other", "success"),
+                            exclude = NULL)
+
+# normalizing "balance" to handle dispersion 
+bank_full$balance <- (bank_full$balance - mean(bank_full$balance)) / sd(bank_full$balance)
+```
+
+
+## Creating a Training Sample to fit the Model & a Test Sample to Test the Model
+```{r train_test_samples}
+set.seed(100)
+bank_full$test_train_indicator <- sample(c("Train", "Test"),
+                               nrow(bank_full),
+                               replace = T,
+                               prob = c(0.8, 0.2))
+
+train <- bank_full[bank_full$test_train_indicator == "Train", ]
+test <- bank_full[bank_full$test_train_indicator == "Test", ]
+```
+
+## Running a Logistic Regression Model on the Training Data
+```{r train_glm}
+
+glmModel <- glm(y ~ ., data = train[c(-10, -11, -12, -18)] , family = "binomial")
+summary(glmModel)
+
+# predict the data to identify the accuracy of the training sample
+outcome <- predict(glmModel, train[c(-10, -11, -12, -18)], "response")
+outcome <- ifelse(outcome > 0.5, 1, 0)
+
+# add the outcome to training sample
+train$outcome <- outcome
+
+# create a confusion matrix
+confusionMatrix <- as.data.frame(table(train$outcome, train$y))
+names(confusionMatrix) <- c("prediction", "True_value", "Count")
+confusionMatrix 
+
+# identify the accuracy of the training model
+accuracy <- sum(confusionMatrix[confusionMatrix$prediction == confusionMatrix$True_value, "Count"]) / sum(confusionMatrix$Count)
+accuracy
+
+```
+
+## Running a Logistic Regression Model on the Test Data
+```{r test_glm}
+
+# predict the data to see the accuracy of the test sample
+glmModel2 <- glm(y ~ ., data = test[c(-10, -11, -12, -18)] , family = "binomial")
+summary(glmModel2)
+
+# predict the data to identify the accuracy of the test sample
+outcome <- predict(glmModel2, test[c(-10, -11, -12, -18)], "response")
+outcome <- ifelse(outcome > 0.5, 1, 0)
+
+# add the outcome to test sample
+test$outcome <- outcome
+
+# create a confusion matrix
+confusionMatrix <- as.data.frame(table(test$outcome, test$y))
+names(confusionMatrix) <- c("prediction", "True_value", "Count")
+confusionMatrix 
+
+# identify the accuracy of the test model
+accuracy <- sum(confusionMatrix[confusionMatrix$prediction == confusionMatrix$True_value, "Count"]) / sum(confusionMatrix$Count)
+  accuracy
+```
+## Creating a Heat Map as a Tile Plot
+```{r tile_plot}
+# heat..
+library(ggplot2)
+ggplot(data = confusionMatrix) +
+  geom_tile(aes(x = prediction, y = True_value), fill = c("green", "red", "red", "green")) +
+  geom_text(aes(x = prediction, y = True_value, label = Count))
+
+```
+
+
+
+
+## Conclusion
+- The training sample demonstrates around 89.34% accuracy
+- The test sample demonstrates 89.21% accuracy
+- The number of correct classifications (32384) > the number of incorrect classifications (3864)
+
+
+**Honors Pledge:**
+
+**As a student of the Dr. Robert B. Pamplin Jr. School of Business I have read and strive to uphold the University’s Code of Academic Integrity and promote ethical behavior. In doing so, I pledge on my honor that I have not given, received, or used any unauthorized materials or assistance on this examination or assignment.  I further pledge that I have not engaged in cheating, forgery, or plagiarism and I have cited all appropriate sources.**
+
+Student Signature: Areej Mulla
