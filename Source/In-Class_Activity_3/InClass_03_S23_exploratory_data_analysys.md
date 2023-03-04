@@ -71,7 +71,7 @@ getwd()
 -   Pay special attention to the missing values in the summary
 
 ``` r
-#I can see how many missing values (NA's) through the summary
+#I can see how many missing values (NA's) through the summary and max and min
 summary(customer_data)
 ```
 
@@ -124,7 +124,11 @@ is.na(temp)
 -   Plot a boxplot and see the outliers?
 
 ``` r
-#a boxplot will help identify outliers
+#a boxplot will help identify outliers (displays descriptive stats)
+
+#simple graph
+#boxplot(customer_data$gas_usage)
+
 library(ggplot2)
 ```
 
@@ -139,6 +143,10 @@ ggplot( data = customer_data) +
 
 ![](InClass_03_S23_exploratory_data_analysys_files/figure-gfm/boxplot1-1.png)<!-- -->
 
+``` r
+#1720 rows containing non-finite values were removed (outliers)
+```
+
 -   What is the spread of income? Is it normally spread? Draw a
     histogram.
 -   set a limit on the income and see if the histogram looks better
@@ -146,14 +154,17 @@ ggplot( data = customer_data) +
 -   Use scales::dollar_format() to include the labels in dollars
 
 ``` r
-#histogram plots frequency
+#histogram plots frequency (to see if data is normally distributed)
+#normal distribution: maximum numbers of samples are aligned at the mean (center point). Remaining observations are equally distribution to either side of the mean
+
 #scale is used for formatting axes
-# lims is part of scale layer so scale will overrride it
+# lims is part of scale layer so scale will override it
 layer1 <- ggplot(data = customer_data)
 layer1 + 
   geom_histogram(aes(x=income)) + 
   lims(x = c(0, 200000)) +
-  scale_x_continuous(labels = scales::dollar_format())
+  scale_x_continuous(labels = scales::dollar_format(),
+                    limits = c(0, 200000))
 ```
 
     ## 
@@ -164,14 +175,25 @@ layer1 +
     ## 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
+    ## Warning: Removed 1471 rows containing non-finite values (`stat_bin()`).
+
+    ## Warning: Removed 2 rows containing missing values (`geom_bar()`).
+
 ![](InClass_03_S23_exploratory_data_analysys_files/figure-gfm/histogram-1.png)<!-- -->
+
+``` r
+# scale_x_continuous overrides lims, so we have to specify the limits again in scale_x_continuous
+```
 
 -   Density plots are another method for analyzing the distribution of
     univariate data  
 -   Use the density plot to examine the age range of the customers.
 
 ``` r
-#density plot gives proportions
+#density plot helps us analyze  proportions
+#we only analyze with > and < not =
+#maximum # of customer are within the age 25 to 75
+
 layer1 +
   geom_density(aes(x = age))
 ```
@@ -181,7 +203,10 @@ layer1 +
 … Might help sometimes
 
 ``` r
+#if we have a very large scale then we need to change the scale
 #log scale minimizes the variation
+#scale_x_continuous only scales the values and changes the curve, so instead we use scale_x_log10
+
 layer1 +
   geom_density(aes(x = age)) +
   scale_x_log10()
@@ -212,6 +237,16 @@ layer1 +
 
 ![](InClass_03_S23_exploratory_data_analysys_files/figure-gfm/bar_chart-1.png)<!-- -->
 
+``` r
+ggplot(customer_data) + 
+  geom_bar(aes(x = marital_status, fill=health_ins), position="dodge") +
+  
+#if I want to add label (but then we need the aggregate function to create count separatly for Tue & False health_ins)
+  geom_text(aes(x = marital_status, label = ..count..), stat = "count")
+```
+
+![](InClass_03_S23_exploratory_data_analysys_files/figure-gfm/bar_chart_dodge-1.png)<!-- -->
+
 -   We need count of each combination
 
 ``` r
@@ -236,12 +271,27 @@ ggplot(health_ins_count_by_marital_status, aes(x=marital_status, y = ct)) +
 
 ![](InClass_03_S23_exploratory_data_analysys_files/figure-gfm/bar_graph_counts-1.png)<!-- -->
 
+``` r
+ggplot(health_ins_count_by_marital_status) + 
+  geom_bar(aes(x = marital_status, y = ct, fill=health_ins),
+           position="dodge", stat = "identity") +
+  geom_text(aes(x = marital_status, y = ct, label = ct))
+```
+
+![](InClass_03_S23_exploratory_data_analysys_files/figure-gfm/bar_graph_douge_counts-1.png)<!-- -->
+
+``` r
+#to adjust the position use vjust & hjust
+```
+
 -   Create a bar chart to present the count values of various
     marital_statuses
 
 ``` r
-ggplot(customer_data) + 
-  geom_bar(aes(x = marital_status, fill=health_ins), position="dodge") 
+layer1 +
+  geom_bar(aes(x = reorder (state_of_res,state_of_res, FUN = function(x) length(x)))) +
+  scale_x_discrete(name = "state of residence")+
+  coord_flip()
 ```
 
 ![](InClass_03_S23_exploratory_data_analysys_files/figure-gfm/bar_chart_desc-1.png)<!-- -->
@@ -252,7 +302,8 @@ ggplot(customer_data) +
 
 ``` r
 ggplot(customer_data[!is.na(customer_data$housing_type),]) +
-  geom_bar(aes(x = reorder(marital_status, marital_status, function(x) {length(x)}))) + 
+  geom_bar(aes(x = reorder(marital_status, marital_status,
+                           function(x) {length(x)})))+ 
   facet_wrap(~housing_type, scale = "free_x") +
   scale_x_discrete(name = "Marital Status") +
   coord_flip()
@@ -260,9 +311,15 @@ ggplot(customer_data[!is.na(customer_data$housing_type),]) +
 
 ![](InClass_03_S23_exploratory_data_analysys_files/figure-gfm/facet_bar_plots-1.png)<!-- -->
 
+``` r
+#free_x makes each of the categories scales different
+```
+
 -   Compare population densities across categories
 
 ``` r
+#to compare density of different marital statuses
+#it's scewed to the right
 ggplot(data = customer_data) +
   geom_density(aes(x = age, color = marital_status, linetype = marital_status, position="fill")) + 
   scale_color_brewer(palette="Dark2")
@@ -273,12 +330,20 @@ ggplot(data = customer_data) +
 
 ![](InClass_03_S23_exploratory_data_analysys_files/figure-gfm/density_comparison-1.png)<!-- -->
 
+``` r
+#i can also add scale_x_continuous(limits = c(0,100000))
+```
+
 -   Scatter plots to identify relationships between two continuos
     variables.
 -   Create a scatter plot between age and income to see if there is any
     relationship between them or they are just independent variables
 
 ``` r
+#continuous variables: age, income, num_vehicles..
+#to see if there's a relationship between two variables
+#there's a slight increase between age group 25 and 60
+
 ggplot(customer_data) + 
   geom_point(aes(x = age, y = income)) + 
   ggtitle(label = "Correlation analysis between Age and Income") + 
@@ -302,9 +367,7 @@ point for exploratory data analysis. The below table summarizes
 </p>
 
 -   There are so many customers with an income range of 0 - \$100,000.  
-
 -   Plot a histogram to highlight customers with an income range
-
     -   -7000-20,000 (includes the min value)
     -   20,000 - 40,000
     -   40,000 - 60,000
@@ -314,7 +377,19 @@ point for exploratory data analysis. The below table summarizes
     -   200,000 - 300,000
     -   300,000 - 400,000
     -   400,000 - 1,300,000 (It includes a max value of 1,257,000)
-
 -   HINT: Use the “cut” function to get the custom breaks
+
+``` r
+#cut(1:20, breaks = c(0, 5, 20))
+customer_data$income_ranges <- cut(customer_data$income, breaks = c(-7000, 20000, 40000, 60000, 80000, 100000, 200000, 300000, 400000, 1300000))
+
+table(customer_data$income_ranges)
+```
+
+    ## 
+    ##  (-7e+03,2e+04]   (2e+04,4e+04]   (4e+04,6e+04]   (6e+04,8e+04]   (8e+04,1e+05] 
+    ##           30494           18059           10343            5541            3188 
+    ##   (1e+05,2e+05]   (2e+05,3e+05]   (3e+05,4e+05] (4e+05,1.3e+06] 
+    ##            4211             674             282             470
 
 -   More into modeling stuff later …
