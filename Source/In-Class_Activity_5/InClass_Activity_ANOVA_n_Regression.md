@@ -112,7 +112,7 @@ var1 <- rbinom(1000, 10, 0.2)
 head(var1, 10)
 ```
 
-    ##  [1] 4 1 2 3 2 3 0 1 0 1
+    ##  [1] 1 4 3 2 1 2 2 4 0 3
 
 ``` r
 # [1] 1 1 1 4 2 2 2 3 3 3  -> provides number of successes in each trial
@@ -121,7 +121,7 @@ var1 <- rbinom(1000, 10, 0.8)
 head(var1, 10)
 ```
 
-    ##  [1]  9  7  8  8  8 10  9  9  8  5
+    ##  [1] 8 8 9 8 8 8 9 5 9 8
 
 ``` r
 # [1]  9  8  4  8 10 10  9  9  9  9 -> we observe higher values (# of successes)
@@ -161,7 +161,7 @@ murray_win_rate1 <- rbinom(100, 10, 0.25)
 head(murray_win_rate1 ,10)
 ```
 
-    ##  [1] 3 2 1 2 2 5 3 0 2 1
+    ##  [1] 2 1 5 3 0 3 0 2 3 2
 
 ``` r
 # Create a histogram using the murray_win_rate sample prediction.
@@ -326,7 +326,7 @@ oneway.test(BulbSize ~ BulbType,
 #' H0: there's no significant difference. All the means are the same
 #' alternative hypothesis:
 #' Ha: there's no evidence to confirm that the means are the same
-#' Ha: reject null hypothesis if p-value is not significant
+#' Ha: reject null hypothesis if p-value is significant
 
 # plot the model
 anova_model <- aov(BulbSize ~ factor(BulbType),

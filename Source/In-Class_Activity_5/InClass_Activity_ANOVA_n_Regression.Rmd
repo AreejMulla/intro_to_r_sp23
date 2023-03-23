@@ -223,7 +223,7 @@ oneway.test(BulbSize ~ BulbType,
 #' H0: there's no significant difference. All the means are the same
 #' alternative hypothesis:
 #' Ha: there's no evidence to confirm that the means are the same
-#' Ha: reject null hypothesis if p-value is not significant
+#' Ha: reject null hypothesis if p-value is significant
 
 # plot the model
 anova_model <- aov(BulbSize ~ factor(BulbType),
