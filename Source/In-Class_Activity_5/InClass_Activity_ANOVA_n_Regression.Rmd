@@ -1,0 +1,352 @@
+---
+title: "ANOVA and Regression"
+author: "Areej Mulla"
+date: '2023-03-16'
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Probability Distribution Functions 
+
+- Normal Distribution 
+
+**Q1. Please write in your own words what is the purpose of each of the below functions.** <br>
+- rnorm() 
+```{r}
+# rnorm generates random deviates 
+var1 <- rnorm(1000, mean = 3, sd = 0.5)
+hist(var1)
+library(ggplot2)
+ggplot(data = as.data.frame(var1)) +
+  geom_density(aes(x = var1))
+```
+
+- dnorm() 
+```{r}
+# dnorm provides the density point
+dnorm(3, mean = 3, sd = 0.5)
+```
+
+- pnorm() 
+```{r}
+# pnorm gives the distribution function (at what proportion we have the qnorm value)
+# returns a proportion of values
+pnorm(2.662755, mean = 3, sd = 0.5)
+```
+
+- qnorm() 
+```{r}
+# qnorm gives the quantile function
+qnorm(0.5, mean = 3, sd = 0.5, lower.tail = TRUE, log.p = FALSE)
+qnorm(0.25, mean = 3, sd = 0.5)
+```
+
+
+```{r Q2. normal_distribution}
+# Create a vector of 1000 random normal numbers with a mean of 5 and standard deviation of 1.5. Name this as human_water_consumption. Assuming that this 1000 sample vector is taken from the global water consumption vector.  
+human_water_consumption <- c(rnorm(1000, mean = 5, sd = 1.5))
+
+# Plot the normal distribution as a density plot
+ggplot(data = as.data.frame(human_water_consumption)) +
+  geom_density(aes(x = human_water_consumption))
+```
+
+
+```{r Q3. Density_Value}
+# What is the global water consumption density for 1 liter of water? 
+dnorm(1,  mean = 5, sd = 1.5)
+
+# What is the global water consumption density for 5 liters of water? 
+dnorm(5,  mean = 5, sd = 1.5)
+
+# Which density value is high? Provide your interpretation. 
+#' The one with global water consumption density of 5 liters of water (density = 0.2659615), because 5 is the mean.
+
+```
+
+
+```{r Q4. lower.tail_upper.tail}
+# What is the average water consumption of bottom 25% of population?  
+qnorm(0.25, mean = 5, sd = 1.5)
+
+# What is the water consumption of top 25% of population?  
+qnorm1 <- qnorm(0.25, mean = 5, sd = 1.5)
+qnorm2 <- 1 - qnorm1
+
+```
+
+
+```{r binomial_distribution}
+# rbinom provides two possibilities S/F
+
+var1 <- rbinom(1000, 10, 0.2)
+head(var1, 10)
+# [1] 1 1 1 4 2 2 2 3 3 3  -> provides number of successes in each trial
+
+var1 <- rbinom(1000, 10, 0.8)
+head(var1, 10)
+# [1]  9  8  4  8 10 10  9  9  9  9 -> we observe higher values (# of successes)
+
+var1 <- rbinom(1000, 50, 0.5)
+hist(var1)
+
+vary_success_rate <- seq(1, 2000, 1)
+var1_distribution <- dbinom(vary_success_rate,
+                            size = 5,
+                            0.5)
+hist(var1_distribution)
+```
+
+
+```{r Q5. probability_of_drinking_n_liters}
+# What percentage of population drinks less than 2 liters of water a day?   
+pnorm(2, mean = 5, sd = 1.5)
+
+# What proportion of the population consumes 7 liters or more of water per day?
+pnorm1 <- pnorm(7, mean = 5, sd = 1.5)
+pnorm2 <- 1 - pnorm1
+
+```
+
+
+``` {r Q6. random_winning_rate_prediction}
+# Create a 100-person sample from a group of sports bettors predicting the number of titles Andy Murray will win in the next 10 tournaments. Assume that his current title-winning percentage is 0.25. Save the output to murray_win_rate and print the first 10 elements. 
+murray_win_rate1 <- rbinom(100, 10, 0.25)
+head(murray_win_rate1 ,10)
+
+# Create a histogram using the murray_win_rate sample prediction.
+hist(murray_win_rate1)
+
+# Re-create the murray_win_rate vector, but this time, increase the size from 100 to 10000 leaving the win-rate and the number of tournaments the same. 
+murray_win_rate2 <- rbinom(10000, 10, 0.25)
+
+# Create a histogram using the 10,000 sample vector
+hist(murray_win_rate2)
+
+# What do you observe? Hint: Central Limit Theorem (This time the distribution is not normal distribution but a Binomial Distribution)
+#' The histograms are similar, because the sample size doesn't impact
+#' the distribution, the number of trials does. Both histograms illustrate 
+#' a distribution that is skewed to the right.
+
+```
+
+``` {r Q7. Poisson_Distribution}
+# Sitting in your car for over a hundred days, you observe how quickly you would be able to pass the red light. Your observation revealed that, on average, five vehicles could easily pass the signal. 
+# Someone in your circle told you that the there is a high chance that if we randomly observe more number of vehicles up to 40, then there is a high chance that more number of vehicles will go through the signal. You would like to show them the densities plot of Poisson distribution. Poisson distribution differs slightly from Normal Distribution. Plot the poisson densities with a mean of five for samples ranging in size from one to forty.
+
+# Create a vector of sample sizes ranging from 1 to 40 incrementing by 1. 
+pois_sample <- seq(1, 40, 1)
+
+# Capture Poisson densities for these 40 samples. Hint: Use dpois() function. You need to pass the sample size and the sample mean of 5 cars. 
+var1 <- dpois(pois_sample, 5)
+
+# Draw the Poisson densities plot
+ggplot(data = as.data.frame(var1)) +
+  geom_line(aes(x = pois_sample , y = var1))
+
+```
+
+
+``` {r Q8. Interpreting_Poisson_Densities}
+# Please provide interpretations for the below plots. 
+library(ggplot2)
+success_samples <- seq(1, 40, 1)
+densities_with_mean1 <- dpois(success_samples, 1)
+densities_with_mean5 <- dpois(success_samples, 5)
+densities_with_mean10 <- dpois(success_samples, 10)
+densities_with_mean20 <- dpois(success_samples, 20)
+
+ggplot(data.frame(x = success_samples), aes(x)) +
+  geom_line(aes(y=densities_with_mean1), colour = "red") +
+  geom_line(aes(y=densities_with_mean5), colour = "blue") +
+  geom_line(aes(y=densities_with_mean10), colour = "green") +
+  geom_line(aes(y=densities_with_mean20), colour = "purple")
+
+#' As the lambda increases the distribution looks more like
+#' a normal distribution. Regression works with large lambda.
+
+```
+
+## ANOVA - Analysis of variance 
+
+```{r Q9. ANOVA_on_S&P_returns_data}
+
+#### class example (Garlic Bulbs)
+
+library(readr)
+garlicBulbs <- read_csv(paste0(getwd(), "/GarlicBulbSizes.csv"))
+
+unique(garlicBulbs$BulbType)
+ggplot( data = garlicBulbs) +
+  geom_boxplot(aes(x = BulbSize)) +
+  facet_grid(~BulbType) +
+  coord_flip()
+
+# plot the group means
+groupMeans <- split(garlicBulbs$BulbSize,
+      garlicBulbs$BulbType)
+
+means_ofgarlic_bulbs <- sapply(groupMeans, mean)
+
+boxplot(BulbSize ~ BulbType,
+        data = garlicBulbs)
+points(means_ofgarlic_bulbs, col = "blue",
+       pch = 16)
+
+#### types of apply class functions
+#' lapply
+#' sapply: simplified version to extract vector
+#' tapply: table apply (apply specific function vector by category)
+#' mapply: multivariate version of apply
+
+#### tapply example
+# rep_len is to repeat a range of numbers a certain number of times
+n <- 17
+fac <- factor(rep_len(1:3, n), levels = 1:5)
+tapply(1:n, fac, sum)
+
+tapply(garlicBulbs$BulbSize,
+       garlicBulbs$BulbType,
+       mean)
+
+# perform one.way ANOVA 
+oneway.test(BulbSize ~ BulbType,
+            data = garlicBulbs)
+# p-value is crucial here
+# p-value is significant, thus we reject the null hypothesis
+
+#### running the hypothesis test:
+#' null hypothesis:
+#' H0: there's no significant difference. All the means are the same
+#' alternative hypothesis:
+#' Ha: there's no evidence to confirm that the means are the same
+#' Ha: reject null hypothesis if p-value is not significant
+
+# plot the model
+anova_model <- aov(BulbSize ~ factor(BulbType),
+                   data = garlicBulbs)
+plot(TukeyHSD(anova_model))
+# we can see that 4 and 3 and 4 & 1 are significantly different
+
+#### GSPC_df example
+
+# Read the S&P returns data - GSPF_df. Load the RData to create this dataframe. 
+load("anova.rdata")
+
+# Use only the first 2500 observations. 
+# Perform one.way ANOVA between the 12 months of returns data.
+GSPC_df <- GSPC_df[1:2500,]
+oneway.test(r ~ mon,
+            data = GSPC_df)
+
+# plot the model
+anova_model_GSPC <- aov(r ~ factor(mon),
+                   data = GSPC_df)
+plot(TukeyHSD(anova_model_GSPC))
+```
+
+
+```{r regression_car_sales}
+# with regression we capture the accuracy by correctly classifying the labels
+
+library(readr)
+carSales <- read_csv(paste0(getwd(), "/Car_sales.csv"))
+
+#### if:
+#' 140 train, Sq Error = 100
+#' 17 test, Sq close to 100
+#' then the model is good
+
+#### some metrics
+# root square mean error
+# r^2
+
+# we need to eliminate NAs
+# we need to make sure there's a linear relationship by using correlation
+
+summary(carSales)
+
+# identify all NA values
+nrow(carSales[complete.cases(carSales), ])
+
+# drop categorical IV from input dataset
+carSales <- carSales[, -3]
+
+# impute means for continuous variables (replace NA values with the mean value)
+summary(ifelse(is.na(carSales$Resale_value),
+       mean(carSales$Resale_value, na.rm = T), 
+       carSales$Resale_value)) # use the code below
+
+# apply the imputation to all columns
+impute_means <- function(x) {
+  ifelse(is.na(x),
+       mean(x, na.rm = T), 
+       x)
+}
+
+# sapply(carSales, FUN = function(x) {
+# mean(x, na.rm = T)
+# }
+# )
+
+carSales <- as.data.frame(sapply(carSales, impute_means))
+
+# create a correlation matrix
+correlation_matrix <- as.data.frame(cor(carSales))
+
+# another way to create a correlation matrix
+library(magrittr)
+View(carSales %>%
+  cor() %>%
+  as.data.frame())
+
+# create a correlation matrix in a csv format
+write.csv(carSales %>%
+  cor() %>%
+  as.data.frame(),
+  "correlation_matrix.csv")
+
+# regression analysis
+model <- lm(Price_in_thousands ~ .,
+            data = carSales)
+summary(model)
+#' Price_in_thousands =  -1.963969  + (-0.002139 * Sales_in_thousands
+#' + 0.115321 * Resale_value + ... + Error)
+
+# deal with insignificant variables (analyzing models using AIC)
+# the lower the AIC the better the model
+# refer to R Cookbook for forward pass and backward model selection
+min.model <- lm(Price_in_thousands ~ 1, data = carSales)
+fwd.model <- step(min.model,
+                  direction = "forward",
+                  scope = (Price_in_thousands ~
+                  Sales_in_thousands +
+                  Resale_value +
+                  Engine_size +
+                  Horsepower +
+                  Wheelbase +
+                  Width +
+                  Length +
+                  Curb_weight +
+                  Fuel_capacity +
+                  Fuel_efficiency +
+                  Power_perf_factor)
+                  )
+               
+summary(fwd.model)
+
+#' the best model: 
+#' lm(formula = Price_in_thousands ~ Power_perf_factor + Horsepower + 
+#' Engine_size + Resale_value + Curb_weight + Fuel_efficiency + 
+#' Length, data = carSales)
+```
+
+
+``` {r Q10. Regression - Optional for In-Class activity}
+# Read the Melbourne Housing Prices dataset 
+# Predict house prices and find the best regression fit model. 
+
+```
