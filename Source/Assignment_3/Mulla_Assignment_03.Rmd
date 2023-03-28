@@ -1,0 +1,132 @@
+---
+title: "sp23_Assignment_3"
+author: "Areej Mulla"
+date: "3/15/2023"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+```
+
+**Question 1** <br>
+
+```{r ANOVA}
+oneway.test(price ~ cut,
+            data = diamonds)
+#' The p-value of < 2.2e-16 is significant (< 0.05 or lower), thus there is no evidence to confirm the null hypothesis, so we reject the null hypothesis (Ha). There is a statistically significant difference between the means of the groups.
+```
+
+**Question 2** <br>
+
+```{r ANOVA_Equal_Variances}
+oneway.test(price ~ cut,
+            var.equal = TRUE,
+            data = diamonds)
+           
+#' The p-value of < 2.2e-16 is the same and significant (< 0.05 or lower),
+#' thus there is no evidence to confirm the null hypothesis, so we reject
+#' the null hypothesis (Ha). There is a statistically significant difference between the means of the groups.
+```
+
+**Question 3** <br>
+
+```{r TukeyHSD, fig.width= 16, fig.height= 20}
+diamonds$cut_new <- factor(diamonds$cut, labels = c("F", "G", "VG", "P", "I"))
+anova_model <- aov(price ~ factor(cut_new),
+                   data = diamonds)
+plot(TukeyHSD(anova_model))
+
+#' there is a significant difference between the group means of all cuts
+#' except for "Premium" & "Fair" and "Very Good" & "Good"
+```
+
+**Question 4** <br>
+
+```{r ANOVA_Good_Very_Good}
+
+#' extract the “Good” and “Very Good” diamonds
+diamonds2 <- diamonds[diamonds$cut == "Good" | diamonds$cut == "Very Good",]
+# or
+diamonds2 <- subset(diamonds, cut == "Good" | diamonds$cut == "Very Good") 
+ 
+# perform the one-way ANOVA
+oneway.test(price ~ cut,
+            var.equal = TRUE,
+            data = diamonds2)
+
+#' The p-value of 0.4188 not significant (> 0.05), thus we accept
+#' the null hypothesis (H0)
+```
+
+**Question 5** <br>
+
+```{r TukeyHSD_Good_Very_Good}
+anova_model2 <- aov(price ~ factor(cut),
+                   data = diamonds2)
+plot(TukeyHSD(anova_model2))
+
+#' There is no significant difference between the group means of "Good" &
+#' "Very Good"
+```
+
+**Question 6** <br>
+
+```{r regression}
+#convert categorical variables into factors
+model <- lm(price ~ factor(cut) + carat + factor(color) + depth,
+            data = diamonds)
+summary(model)
+
+#' the model presents a good fit with a p-value of < 2.2e-16 and 
+#' F-statistic of 3.042e+04. All coefficients demonstrate
+#' significant values.
+```
+
+**Question 7** <br>
+
+```{r regression_forward_pass}
+min.model <- lm(price ~ 1, data = diamonds)
+fwd.model <- step(min.model,
+                  direction = "forward",
+                  scope = (price ~
+                  carat +
+                  factor(cut) +
+                  factor(color) +
+                  factor(clarity) +
+                  depth +
+                  table +
+                  x +
+                  y +
+                  z)
+                  )
+
+#' the best model is price ~ carat + clarity + color + x + cut + depth +
+#' table + z, with the lowest AIC of 758424.7
+
+# print the summary of the best fit model
+summary(fwd.model)
+```
+
+Regress “price” on 4 variables, cut, carat, color, and depth. 
+Draw the diagnostic plots for a sample of 1000 observations of the diamonds dataset.
+
+**Question 8** <br>
+
+```{r regression_plot}
+sample <- diamonds[sample(1:53940, 1000), ]
+model <- lm(price ~ factor(cut) + carat + factor(color) + depth,
+            data = sample)
+plot(model)
+```
+
+**Honors Pledge:**
+
+**As a student of the Dr. Robert B. Pamplin Jr. School of Business I have read and strive to uphold the University’s Code of Academic Integrity and promote ethical behavior. In doing so, I pledge on my honor that I have not given, received, or used any unauthorized materials or assistance on this examination or assignment.  I further pledge that I have not engaged in cheating, forgery, or plagiarism and I have cited all appropriate sources.**
+
+Student Signature: Areej Mulla
